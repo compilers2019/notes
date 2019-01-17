@@ -1,4 +1,4 @@
-Subject Code and Course Number:			CS 331
+Subject Code and Course Number:			CS 236, 336
 
 Course Title:							  Operating System Principles
 
