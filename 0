@@ -1,0 +1,62 @@
+What we will do?
+
+Why do we have programming languages?
+
+Is programming language a computer language?
+
+What compilers do you know?
+
+Compiler, interpreter.
+
+(translator example).
+
+Why compiling, why interpreting?
+
+pros and cons.
+
+What is assembler?
+Why don't we write in assembler?
+
+What do we deal with in assembler, and what do we deal with in PLs?
+
+Are there languages, that cannot be compiled?
+
+cross compilers, JIT, binary compilers.
+
+T diagrams by Bratman.
+
+Source language                      Target Language
+
+
+              Instrumental language
+
+
+
+C            x86_64
+       C
+
+
+
+
+Java         JVM byte code
+       C
+
+
+
+Oberon       x86_64
+      Oberon
+
+
+
+How first compilers worked?
+
+What is bootstraping?
+
+
+Metalanguages - languages to describe other languages.
+
+Our spoken language can be metalanguage.
+
+Programming languages geneology.
+
+
