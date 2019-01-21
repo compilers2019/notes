@@ -11,11 +11,13 @@ Then 'END' reserved word should follow.
 Then program name, mentioned after 'PROGRAM' should follow.
 Then the program should end with '.' symbol.
 
+
+
 CoCo/R website: http://ssw.jku.at/Coco/
 
 To commit:
 0. the ATG file (EBNF representation)
 1. generated source code.
-2. note how to compile the source code with your version of CoCo/R.
+2. note how to compile the source code with your version of CoCo/R. (make me a favour, provide a makefile)
 
 link: https://classroom.github.com/a/pSIVcep2
