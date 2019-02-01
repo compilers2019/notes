@@ -1,4 +1,4 @@
-
+prgName
 .section .data
 .section .bss
 .lcomm  a, 4
