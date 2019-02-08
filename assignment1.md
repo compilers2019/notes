@@ -24,7 +24,7 @@ VAR
 BEGIN
   i := 42;
   j := 23;
-
+  RETURN i;
 END testPrg;
 
 
