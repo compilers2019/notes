@@ -16,5 +16,5 @@ _start:
   movl $5, a        # a := 5
 
   movl $1, %eax   # number of exit() syscall
-  movl a, %ebx      # RETURN A 
+  movl a, %ebx      # RETURN a 
   int $0x80         # END, interrupt, execute the code.
