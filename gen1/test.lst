@@ -1,0 +1,64 @@
+Coco/R - Compiler-Compiler V1.54 (for Pascal)
+Turbo Pascal version by Pohlers Volker/Terry Pat 2018.161
+Source file: test.atg
+
+Grammar Tests:
+
+Deletable symbols:        -- none --
+Undefined nonterminals:   -- none --
+Unreachable nonterminals: -- none --
+Circular derivations:     -- none --
+Underivable nonterminals: -- none --
+LL(1) conditions:         --  ok  --
+
+Listing:
+
+    1  COMPILER Language
+    2  
+    3  
+    4  CHARACTERS
+    5  
+    6  letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+    7  digit = "0123456789" .
+    8    tab      = CHR(9) .
+    9    lf       = CHR(10) .
+   10    eol      = CHR(13) .
+   11  
+   12  IGNORE
+   13    tab + eol + lf
+   14  
+   15  TOKENS
+   16  
+   17  ident = letter {letter | digit} .
+   18  number = digit { digit } .
+   19  
+   20  PRODUCTIONS
+   21  
+   22  Language =  prg name ";" [var {def}] bgn {expression} end name "." .
+   23  prg   = "PROGRAM" .
+   24  name  = ident .
+   25  var   = "VAR" .
+   26  def   = ident ":" intname ";" .
+   27  intname   = "INTEGER" .
+   28  bgn   = "BEGIN" .
+   29  expression = term { "+" term | "-" term} .
+   30  term       = factor { "*" factor | "/" factor } .
+   31  factor     = number | ident .
+   32  end   = "END" .
+   33  
+   34  END Language.
+
+    0 errors
+
+
+Statistics:
+
+  nr of terminals:        16 (limit   256)
+  nr of non-terminals:    11 (limit   130)
+  nr of pragmas:           0 (limit   384)
+  nr of symbolnodes:      27 (limit   400)
+  nr of graphnodes:       45 (limit  1500)
+  nr of conditionsets:     1 (limit   100)
+  nr of charactersets:     6 (limit   250)
+
+

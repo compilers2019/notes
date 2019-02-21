@@ -1,0 +1,17 @@
+   0 : Msg('EOF expected');
+   1 : Msg('ident expected');
+   2 : Msg('number expected');
+   3 : Msg('";" expected');
+   4 : Msg('"." expected');
+   5 : Msg('"PROGRAM" expected');
+   6 : Msg('"VAR" expected');
+   7 : Msg('":" expected');
+   8 : Msg('"INTEGER" expected');
+   9 : Msg('"BEGIN" expected');
+  10 : Msg('"+" expected');
+  11 : Msg('"-" expected');
+  12 : Msg('"*" expected');
+  13 : Msg('"/" expected');
+  14 : Msg('"END" expected');
+  15 : Msg('not expected');
+  16 : Msg('invalid factor');

@@ -1,0 +1,34 @@
+COMPILER Language
+
+
+CHARACTERS
+
+letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+digit = "0123456789" .
+  tab      = CHR(9) .
+  lf       = CHR(10) .
+  eol      = CHR(13) .
+
+IGNORE
+  tab + eol + lf
+
+TOKENS
+
+ident = letter {letter | digit} .
+number = digit { digit } .
+
+PRODUCTIONS
+
+Language =  prg name ";" [var {def}] bgn {expression} end name "." .
+prg   = "PROGRAM" .
+name  = ident .
+var   = "VAR" .
+def   = ident ":" intname ";" .
+intname   = "INTEGER" .
+bgn   = "BEGIN" .
+expression = term { "+" term | "-" term} .
+term       = factor { "*" factor | "/" factor } .
+factor     = number | ident .
+end   = "END" .
+
+END Language.
