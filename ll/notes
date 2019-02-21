@@ -1,0 +1,130 @@
+
+Coco/R checks the grammar for completeness, consistency, non-redundancy as well as for LL(1) conflicts. 
+
+
+In computer science, an LL parser (Left-to-right, Leftmost derivation) is a top-down parser for a subset of context-free languages. It parses the input from Left to right, performing Leftmost derivation of the sentence.
+
+An LL parser is called an LL(k) parser if it uses k tokens of lookahead when parsing a sentence. A grammar is called an LL(k) grammar if an LL(k) parser can be constructed from it. A formal language is called an LL(k) language if it has an LL(k) grammar.
+
+https://en.wikipedia.org/wiki/LL_parser
+
+
+Recursive descent parsing [16] is a popular top-down parsing technique that is simple,  efficient,  and  convenient  for  integrating  semantic  processing.  However,  it  requires the grammar of the parsed language to be LL(1), which means that the parser must always be able to select between alternatives with a single symbol lookahead.
+
+https://web.archive.org/web/20160307164141/http://www.ssw.uni-linz.ac.at/coco/Doc/ConflictResolvers.pdf
+
+Unfortunately, many  languages  such  as  Java,  C++  or  C#  are  not  LL(1)  so  that  one either has to resort to bottom-up LALR(1) parsing [5, 1], which is more powerful but less convenient for semantic processing, or the parser has to resolve the LL(1) conflicts using semantic information or a multi-symbol lookahead.
+
+Factorization
+
+A = a b c | a b d .
+
+can be transformed to:
+
+A = a b (c | d)
+
+Left recursion
+
+A = A b | c .
+
+both alternatives start with c.
+Recursion can be translated into an iteration, e. g. previous production becomes
+
+A = c { b } .
+
+Hard confilcts.
+
+consider the following (simplified) production taken from the c# grammar.
+
+identList = ident { "," ident } [ "," ] .
+
+the conflict arises, because both the iteration and the option can start with a comma.
+
+there is no way to get rid of this conflict by transforming the grammar.
+
+the only way to resolve it, is to look ahead two symbols in order to see what follows after the comma.
+
+readability issues:
+
+some grammar transformations can degrade the readability of the grammar.
+
+consider the following example (again taken from a simplified form of the c# grammar):
+
+usingClause = "using" [ ident "=" ] qualident ";" .
+qualident   = ident { "." ident } .
+
+the conflict is in usingClause where both the option and qualident start with ident.
+
+although this conflict could be eliminated by transforming the production to
+
+usingClause = "using" ident ( { "." ident }
+                            | "=" qualident
+                            ) ";" .
+
+the readability would clearly deteroriate. it is better to resolve this conflict as shown later.
+
+
+semantic issues.
+
+   finally, factorization is sometimes inhibited by the fact that the semantic processing of conflicting alternatives differs, e. g.:
+
+   A = ident (. x = 1; .) {"," ident (. x++; .) } ":"
+     | ident (. Foo(); .) {"," ident (. Bar(); .) } ";" .
+
+
+ ------------------------------------
+
+ conflict resolver is a boolean expression that is inserted into the grammar at the beginning of the first of two conflicting alternatives and decides by a multi-symbol lookahead or by semantic checks, whether this alternative matches the actual input.
+
+ if the resolver yields true, the alternative is selected, otherwise the next alternative will be checked. a conflict resolver is given in the form
+
+ resolver = "if" "(" {ANY} ")" .
+
+ where {ANY} means an arbitrary piece of code that represents a boolean expression.
+
+ in most cases this will be a method call that returns true or false.
+
+ thus we can resolve the LL(1) conflict in the following way:
+
+usingClause = "using" [ ident "=" ] qualident ";" .
+qualident   = ident { "." ident } .
+
+
+
+
+ usingClause = "using" [IF(isAlias()) ident "="]
+               qualident ";" .
+
+
+isAlias is a user-defined method that reads two symbols ahead.
+it returns true, if ident is followed by "=", otherwise false.
+
+
+
+multi symbol lookahead.
+
+the coco/r generated parser remembers the last recognized terminal symbol as well as the current lookahead symbol in the following two global variables:
+
+Token t; //last recognized terminal symbol
+Token la; //lookahead symbol
+
+in case one wants to look ahead more than just one symbol, the coco/r generated scanner offers the following two methods to do this:
+
+* StartPeek() initializes peeking in the scanner by synchronizing it with the position after the current lookahead symbol.
+
+* Peek() returns the next symbol as a Token object. The symbols returned by Peek are not removed from the input stream, so that the scanner will deliver them again when "normal" parsing resumes.
+
+Using these methods we can implement isAlias() in the following way:
+
+bool isAlias()
+{
+
+  scanner.StartPeek();
+  Token x = scanner.Peek();
+  return la.kind == Tokens.ident [[ x.kind == Tokens.eql;
+
+}
+
+the last conflict mentioned previously can be resolved by the grammar rule
+
+

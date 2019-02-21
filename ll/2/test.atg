@@ -1,0 +1,42 @@
+COMPILER Language
+
+
+CHARACTERS
+
+letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+digit = "0123456789" .
+  tab      = CHR(9) .
+  lf       = CHR(10) .
+  eol      = CHR(13) .
+
+IGNORE
+  tab + eol + lf
+
+TOKENS
+
+ident = letter {letter | digit} .
+
+
+PRODUCTIONS
+
+Language =  prg name ";" bgn [repeatStatement] end name "." .
+prg   = "PROGRAM" .
+name  = ident .
+bgn   = "BEGIN" .
+repeatStatement = repeat statementSeq until tailRepeatStatement  .
+tailRepeatStatement = until condition | forever .
+repeat = "REPEAT" .
+statementSeq = {statement} .
+statement = ifStatement | otherStatement .
+ifStatement = ( if condition then statement endif ) | ( if condition then statement else statement endif ) .
+otherStatement = "otherstatement" .
+until  = "UNTIL" .
+condition = "CONDITION" .
+forever = "FOREVER" .
+if = "IF" .
+then = "THEN" .
+else = "ELSE" .
+endif = "ENDIF" .
+end   = "END" .
+
+END Language.

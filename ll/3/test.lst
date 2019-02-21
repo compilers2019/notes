@@ -1,0 +1,74 @@
+Coco/R - Compiler-Compiler V1.54 (for Pascal)
+Turbo Pascal version by Pohlers Volker/Terry Pat 2018.161
+Source file: test.atg
+
+Grammar Tests:
+
+Deletable symbols:
+     statementSeq
+Undefined nonterminals:   -- none --
+Unreachable nonterminals: -- none --
+Circular derivations:     -- none --
+Underivable nonterminals: -- none --
+LL(1) conditions:         --  ok  --
+
+Listing:
+
+    1  COMPILER Language
+    2  
+    3  
+    4  CHARACTERS
+    5  
+    6  letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+    7  digit = "0123456789" .
+    8    tab      = CHR(9) .
+    9    lf       = CHR(10) .
+   10    eol      = CHR(13) .
+   11  
+   12  IGNORE
+   13    tab + eol + lf
+   14  
+   15  TOKENS
+   16  
+   17  ident = letter {letter | digit} .
+   18  
+   19  
+   20  PRODUCTIONS
+   21  
+   22  Language =  prg name ";" bgn [repeatStatement] end name "." .
+   23  prg   = "PROGRAM" .
+   24  name  = ident .
+   25  bgn   = "BEGIN" .
+   26  repeatStatement = repeat statementSeq until tailRepeatStatement  .
+   27  tailRepeatStatement = until condition | forever .
+   28  repeat = "REPEAT" .
+   29  statementSeq = {statement} .
+   30  statement = ifStatement | otherStatement .
+   31  ifStatement = if condition then statement ifTail .
+   32  ifTail = else statement endif | endif  .
+   33  otherStatement = "otherstatement" .
+   34  until  = "UNTIL" .
+   35  condition = "CONDITION" .
+   36  forever = "FOREVER" .
+   37  if = "IF" .
+   38  then = "THEN" .
+   39  else = "ELSE" .
+   40  endif = "ENDIF" .
+   41  end   = "END" .
+   42  
+   43  END Language.
+
+    0 errors
+
+
+Statistics:
+
+  nr of terminals:        17 (limit   256)
+  nr of non-terminals:    20 (limit   130)
+  nr of pragmas:           0 (limit   383)
+  nr of symbolnodes:      37 (limit   400)
+  nr of graphnodes:       50 (limit  1500)
+  nr of conditionsets:     1 (limit   100)
+  nr of charactersets:     6 (limit   250)
+
+
