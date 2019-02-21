@@ -1,0 +1,3 @@
+DEFINITION m;
+
+PROCEDURE add(i, j: INTEGER);

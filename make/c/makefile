@@ -1,7 +1,7 @@
 
 
 all: math.o test.o
-		cc -o test math.o test.o
+			cc -o test math.o test.o
 		
 
 math.o: math.c 

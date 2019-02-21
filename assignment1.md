@@ -51,3 +51,27 @@ END testPrg;
 assignment link: https://classroom.github.com/a/oKkfo9iF
 
 deadline: 02/20/2019 23:59 +040
+
+* make sure ATG is correct
+
+* be able to compile a compiler. (main file may be necessary)
+
+* make sure the compiled compiler finds mistakes in example source. otherwise change ATG and generate compiler sources again.
+
+* add generator module.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

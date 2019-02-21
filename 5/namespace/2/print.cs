@@ -9,7 +9,7 @@ class Print
     // Console - from the namespace System
     // A       - from the namespace Hello
     
-    System.Console.WriteLine(Hello.A.B.C); //this is allowed but not required
+    Console.WriteLine(A.B.C);
 
   }
 

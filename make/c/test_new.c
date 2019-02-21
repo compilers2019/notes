@@ -1,6 +1,7 @@
 
 #include "stdio.h"
 
+int add(float, float);
 
 int main()
 {
