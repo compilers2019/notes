@@ -128,19 +128,19 @@ RPN
 
 infix notation
 
-2 + 2
+2 + 3
 
 functional notation
 
-f(2, 2) = 2 + 3 (this is not an assignment)
+f(2, 3) = 2 + 3 (this is not an assignment)
 
 prefix notation
 
-+ 2 2
++ 2 3
 
 postfix notation
 
-2 2 +
+2 3 +
 
 infix notation uses parentheses that define groups of operands and operators, 
 define the sequence in which operations must be conducted.
