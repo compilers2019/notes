@@ -45,18 +45,21 @@ Listing:
    28  repeat = "REPEAT" .
    29  statementSeq = {statement} .
    30  statement = ifStatement | otherStatement .
-   31  ifStatement = ( if condition then statement endif ) | ( if condition then statement else statement endif ) .
-   32  otherStatement = "otherstatement" .
-   33  until  = "UNTIL" .
-   34  condition = "CONDITION" .
-   35  forever = "FOREVER" .
-   36  if = "IF" .
-   37  then = "THEN" .
-   38  else = "ELSE" .
-   39  endif = "ENDIF" .
-   40  end   = "END" .
-   41  
-   42  END Language.
+   31  
+   32  ifStatement = ( if condition then statement endif ) | ( if condition then statement else statement endif ) .
+   33  
+   34  otherStatement = "otherstatement" .
+   35  
+   36  until  = "UNTIL" .
+   37  condition = "CONDITION" .
+   38  forever = "FOREVER" .
+   39  if = "IF" .
+   40  then = "THEN" .
+   41  else = "ELSE" .
+   42  endif = "ENDIF" .
+   43  end   = "END" .
+   44  
+   45  END Language.
 
     0 errors
 

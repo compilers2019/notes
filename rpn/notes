@@ -1,0 +1,44 @@
+infix notation
+
+2 + 2
+
+functional notation
+
+f(2, 2) = 2 + 3 (this is not an assignment)
+
+prefix notation
+
++ 2 2
+
+postfix notation
+
+2 2 +
+
+infix notation uses parentheses that define groups of operands and operators, 
+define the sequence in which operations must be conducted.
+
+if there are no parentheses, then we use rules of priority.
+
+language Forth uses RPN.
+
+that's why it's easier to implement.
+
+
+example:
+
+2 + 3 - 5
+
+would look 2 3 + 5 - in rpn.
+
+therefore:
+
+
+  2     3        +      5      -
+Stack:
+|  |   |  |    |  |    |  |   |  |
+|  |   |3 |    |  |    |5 |   |  |
+|2 |   |2 |    |5 |    |5 |   |0 |
+----   ----    ----    ----   ----
+
+
+https://everything2.com/title/reverse+Polish+notation

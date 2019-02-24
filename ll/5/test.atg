@@ -19,18 +19,33 @@ ident = letter {letter | digit} .
 
 PRODUCTIONS
 
-Language =  prg name ";" bgn [repeatStatement] end name "." .
+Language =  prg name ";" usingClause bgn [repeatStatement] end name "." .
 prg   = "PROGRAM" .
 name  = ident .
 bgn   = "BEGIN" .
-repeatStatement = repeat statementSeq tailRepeatStatement  .
+
+usingClause = using [ ident "=" ] qualident ";" .
+
+
+using = "using" .
+
+qualident = ident { "." ident } .
+
+repeatStatement = repeat statementSeq until tailRepeatStatement  .
 tailRepeatStatement = until condition | forever .
 repeat = "REPEAT" .
 statementSeq = {statement} .
-statement = "STATEMENT" .
+statement = ifStatement | otherStatement .
+ifStatement = if condition then statement ifTail .
+ifTail = else statement endif | endif  .
+otherStatement = "otherstatement" .
 until  = "UNTIL" .
 condition = "CONDITION" .
 forever = "FOREVER" .
+if = "IF" .
+then = "THEN" .
+else = "ELSE" .
+endif = "ENDIF" .
 end   = "END" .
 
 END Language.

@@ -4,11 +4,11 @@
    3 : Msg('"." expected');
    4 : Msg('"PROGRAM" expected');
    5 : Msg('"BEGIN" expected');
-   6 : Msg('"FOREVER" expected');
-   7 : Msg('"REPEAT" expected');
-   8 : Msg('"STATEMENT" expected');
-   9 : Msg('"UNTIL" expected');
-  10 : Msg('"CONDITION" expected');
+   6 : Msg('"REPEAT" expected');
+   7 : Msg('"STATEMENT" expected');
+   8 : Msg('"UNTIL" expected');
+   9 : Msg('"CONDITION" expected');
+  10 : Msg('"FOREVER" expected');
   11 : Msg('"END" expected');
   12 : Msg('not expected');
   13 : Msg('invalid repeatStatement');

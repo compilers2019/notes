@@ -40,15 +40,16 @@ Listing:
    23  prg   = "PROGRAM" .
    24  name  = ident .
    25  bgn   = "BEGIN" .
-   26  repeatStatement = (repeat statementSeq until condition ) | ( repeat statementSeq "FOREVER"  ) .
+   26  repeatStatement = (repeat statementSeq until condition ) | ( repeat statementSeq forever  ) .
    27  repeat = "REPEAT" .
    28  statementSeq = {statement} .
    29  statement = "STATEMENT" .
    30  until  = "UNTIL" .
    31  condition = "CONDITION" .
-   32  end   = "END" .
-   33  
-   34  END Language.
+   32  forever = "FOREVER" .
+   33  end   = "END" .
+   34  
+   35  END Language.
 
     0 errors
 
@@ -56,10 +57,10 @@ Listing:
 Statistics:
 
   nr of terminals:        13 (limit   256)
-  nr of non-terminals:    11 (limit   130)
+  nr of non-terminals:    12 (limit   130)
   nr of pragmas:           0 (limit   387)
-  nr of symbolnodes:      24 (limit   400)
-  nr of graphnodes:       30 (limit  1500)
+  nr of symbolnodes:      25 (limit   400)
+  nr of graphnodes:       31 (limit  1500)
   nr of conditionsets:     1 (limit   100)
   nr of charactersets:     6 (limit   250)
 

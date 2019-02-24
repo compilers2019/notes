@@ -34,7 +34,7 @@ USES LanguagS;
 
 
 CONST
-  maxT = 12;
+  maxT = 18;
   minErrDist  =  2;  (* minimal distance (good tokens) between two errors *)
   setsize     = 16;  (* sets are stored in 16 bits *)
 
@@ -139,74 +139,171 @@ FUNCTION Successful : BOOLEAN;
     Successful := LanguagS.errors = 0
   END;
 
+PROCEDURE _endif; FORWARD;
+PROCEDURE _else; FORWARD;
+PROCEDURE _ifTail; FORWARD;
+PROCEDURE _then; FORWARD;
+PROCEDURE _if; FORWARD;
+PROCEDURE _otherStatement; FORWARD;
+PROCEDURE _ifStatement; FORWARD;
 PROCEDURE _statement; FORWARD;
 PROCEDURE _forever; FORWARD;
 PROCEDURE _condition; FORWARD;
+PROCEDURE _tailRepeatStatement; FORWARD;
 PROCEDURE _until; FORWARD;
 PROCEDURE _statementSeq; FORWARD;
 PROCEDURE _repeat; FORWARD;
+PROCEDURE _qualident; FORWARD;
+PROCEDURE _using; FORWARD;
 PROCEDURE _end; FORWARD;
 PROCEDURE _repeatStatement; FORWARD;
 PROCEDURE _bgn; FORWARD;
+PROCEDURE _usingClause; FORWARD;
 PROCEDURE _name; FORWARD;
 PROCEDURE _prg; FORWARD;
 PROCEDURE _Language; FORWARD;
 
-PROCEDURE _statement;
+PROCEDURE _endif;
   BEGIN
-    Expect(7);
+    Expect(16);
   END;
 
-PROCEDURE _forever;
+PROCEDURE _else;
   BEGIN
-    Expect(10);
+    Expect(15);
   END;
 
-PROCEDURE _condition;
+PROCEDURE _ifTail;
+  BEGIN
+    IF (sym = 15) THEN BEGIN
+      _else;
+      _statement;
+      _endif;
+    END ELSE IF (sym = 16) THEN BEGIN
+      _endif;
+    END ELSE BEGIN SynError(19);
+    END;
+  END;
+
+PROCEDURE _then;
+  BEGIN
+    Expect(14);
+  END;
+
+PROCEDURE _if;
+  BEGIN
+    Expect(13);
+  END;
+
+PROCEDURE _otherStatement;
   BEGIN
     Expect(9);
   END;
 
+PROCEDURE _ifStatement;
+  BEGIN
+    _if;
+    _condition;
+    _then;
+    _statement;
+    _ifTail;
+  END;
+
+PROCEDURE _statement;
+  BEGIN
+    IF (sym = 13) THEN BEGIN
+      _ifStatement;
+    END ELSE IF (sym = 9) THEN BEGIN
+      _otherStatement;
+    END ELSE BEGIN SynError(20);
+    END;
+  END;
+
+PROCEDURE _forever;
+  BEGIN
+    Expect(12);
+  END;
+
+PROCEDURE _condition;
+  BEGIN
+    Expect(11);
+  END;
+
+PROCEDURE _tailRepeatStatement;
+  BEGIN
+    IF (sym = 10) THEN BEGIN
+      _until;
+      _condition;
+    END ELSE IF (sym = 12) THEN BEGIN
+      _forever;
+    END ELSE BEGIN SynError(21);
+    END;
+  END;
+
 PROCEDURE _until;
   BEGIN
-    Expect(8);
+    Expect(10);
   END;
 
 PROCEDURE _statementSeq;
   BEGIN
-    WHILE (sym = 7) DO BEGIN
+    WHILE (sym = 9) OR (sym = 13) DO BEGIN
       _statement;
     END;
   END;
 
 PROCEDURE _repeat;
   BEGIN
-    Expect(6);
+    Expect(8);
+  END;
+
+PROCEDURE _qualident;
+  BEGIN
+    Expect(1);
+    WHILE (sym = 3) DO BEGIN
+      Get;
+      Expect(1);
+    END;
+  END;
+
+PROCEDURE _using;
+  BEGIN
+    Expect(7);
   END;
 
 PROCEDURE _end;
   BEGIN
-    Expect(11);
+    Expect(17);
   END;
 
 PROCEDURE _repeatStatement;
   BEGIN
-    IF (sym = 6) THEN BEGIN
-      _repeat;
-      _statementSeq;
-      _until;
-      _condition;
-    END ELSE IF (sym = 6) THEN BEGIN
-      _repeat;
-      _statementSeq;
-      _forever;
-    END ELSE BEGIN SynError(13);
-    END;
+    _repeat;
+    _statementSeq;
+    _until;
+    _tailRepeatStatement;
   END;
 
 PROCEDURE _bgn;
   BEGIN
     Expect(5);
+  END;
+
+PROCEDURE _usingClause;
+  BEGIN
+    _using;
+    Expect(1);
+    IF (sym = 2) OR (sym = 3) THEN BEGIN
+      WHILE (sym = 3) DO BEGIN
+        Get;
+        Expect(1);
+      END;
+    END ELSE IF (sym = 6) THEN BEGIN
+      Get;
+      _qualident;
+    END ELSE BEGIN SynError(22);
+    END;
+    Expect(2);
   END;
 
 PROCEDURE _name;
@@ -224,8 +321,9 @@ PROCEDURE _Language;
     _prg;
     _name;
     Expect(2);
+    _usingClause;
     _bgn;
-    IF (sym = 6) THEN BEGIN
+    IF (sym = 8) THEN BEGIN
       _repeatStatement;
     END;
     _end;
@@ -245,4 +343,5 @@ PROCEDURE  Parse;
 BEGIN
   errDist := minErrDist;
   symSet[ 0, 0] := [0];
+  symSet[ 0, 1] := [];
 END. (* LanguagP *)

@@ -1,10 +1,10 @@
-PROGRAM Languag;
+PROGRAM -->Grammar;
 (* This is an example of a rudimentary main module for use with COCO/R (Pascal)
    The auxiliary modules <Grammar>S (scanner) and <Grammar>P (parser)
    are assumed to have been constructed with COCO/R compiler generator. *)
 
-USES LanguagS, (* lst, src, errors, Error, CharAt *)
-     LanguagP;  (* Parse, Successful *)
+USES -->Scanner, (* lst, src, errors, Error, CharAt *)
+     -->Parser;  (* Parse, Successful *)
 
 PROCEDURE AppendExtension (OldName, Ext : STRING; VAR NewName : STRING);
   VAR
@@ -99,21 +99,7 @@ PROCEDURE AppendExtension (OldName, Ext : STRING; VAR NewName : STRING);
     BEGIN
       Pointer;
       CASE nr OF
-         0 : Msg('EOF expected');
-         1 : Msg('ident expected');
-         2 : Msg('";" expected');
-         3 : Msg('"." expected');
-         4 : Msg('"PROGRAM" expected');
-         5 : Msg('"BEGIN" expected');
-         6 : Msg('"REPEAT" expected');
-         7 : Msg('"STATEMENT" expected');
-         8 : Msg('"UNTIL" expected');
-         9 : Msg('"CONDITION" expected');
-        10 : Msg('"FOREVER" expected');
-        11 : Msg('"END" expected');
-        12 : Msg('not expected');
-        13 : Msg('invalid repeatStatement');
-      
+      -->Errors
       (* add your customized cases here *)
       ELSE BEGIN Msg('Error: '); Write(lst, nr); END
       END;
@@ -189,7 +175,7 @@ BEGIN
   END;
 
   (* install error reporting procedure *)
-  LanguagS.Error := StoreError;
+  -->Scanner.Error := StoreError;
 
   (* instigate the compilation *)
   WriteLn('Parsing');
@@ -206,4 +192,4 @@ BEGIN
       Write('Parsed correctly');
       (* ++++++++ Add further activities if required ++++++++++ *)
   END;
-END. (* Languag *)
+END. (* -->Grammar *)
