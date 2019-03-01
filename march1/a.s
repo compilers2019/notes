@@ -10,6 +10,6 @@ _start:
 movl $23, i
 pushl i
 
-movl i, %ebx
+movl (%esp), %ebx
 movl $1, %eax
 int $0x80
