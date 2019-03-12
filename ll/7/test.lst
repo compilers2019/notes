@@ -1,0 +1,85 @@
+Coco/R - Compiler-Compiler V1.54 (for Pascal)
+Turbo Pascal version by Pohlers Volker/Terry Pat 2018.161
+Source file: test.atg
+
+Grammar Tests:
+
+Deletable symbols:
+     statementSeq
+Undefined nonterminals:   -- none --
+Unreachable nonterminals: -- none --
+Circular derivations:     -- none --
+Underivable nonterminals: -- none --
+LL(1) conditions:
+ LL(1) error in list: ident is the start of several alternatives.
+
+Listing:
+
+    1  COMPILER Language
+    2  
+    3  
+    4  CHARACTERS
+    5  
+    6  letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+    7  digit = "0123456789" .
+    8    tab      = CHR(9) .
+    9    lf       = CHR(10) .
+   10    eol      = CHR(13) .
+   11  
+   12  IGNORE
+   13    tab + eol + lf
+   14  
+   15  TOKENS
+   16  
+   17  ident = letter {letter | digit} .
+   18  
+   19  PRODUCTIONS
+   20  
+   21  Language =  prg name ";" usingClause bgn [repeatStatement | list ] end name "." .
+   22  prg   = "PROGRAM" .
+   23  name  = ident .
+   24  bgn   = "BEGIN" .
+   25  
+   26  usingClause = using ident ( { "." ident }
+   27                            | "=" qualident 
+   28                            ) ";" .
+   29  using = "using" .
+   30  qualident = ident { "." ident } .
+   31  
+   32  list = list "," item | item .
+   33  item = ident .
+   34  
+   35  
+   36  repeatStatement = repeat statementSeq until tailRepeatStatement  .
+   37  tailRepeatStatement = until condition | forever .
+   38  repeat = "REPEAT" .
+   39  statementSeq = {statement} .
+   40  statement = ifStatement | otherStatement .
+   41  ifStatement = if condition then statement ifTail .
+   42  ifTail = else statement endif | endif  .
+   43  otherStatement = "otherstatement" .
+   44  until  = "UNTIL" .
+   45  condition = "CONDITION" .
+   46  forever = "FOREVER" .
+   47  if = "IF" .
+   48  then = "THEN" .
+   49  else = "ELSE" .
+   50  endif = "ENDIF" .
+   51  end   = "END" .
+   52  
+   53  END Language.
+
+    0 errors
+
+
+Statistics:
+
+  nr of terminals:        20 (limit   256)
+  nr of non-terminals:    25 (limit   130)
+  nr of pragmas:           0 (limit   380)
+  nr of symbolnodes:      45 (limit   400)
+  nr of graphnodes:       76 (limit  1500)
+  nr of conditionsets:     1 (limit   100)
+  nr of charactersets:     6 (limit   250)
+
+

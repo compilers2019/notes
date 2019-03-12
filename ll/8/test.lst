@@ -1,0 +1,79 @@
+Coco/R - Compiler-Compiler V1.54 (for Pascal)
+Turbo Pascal version by Pohlers Volker/Terry Pat 2018.161
+Source file: test.atg
+
+Grammar Tests:
+
+Deletable symbols:
+     statementSeq
+     list
+Undefined nonterminals:   -- none --
+Unreachable nonterminals: -- none --
+Circular derivations:     -- none --
+Underivable nonterminals: -- none --
+LL(1) conditions:
+ LL(1) error in list: ident is the start of several alternatives.
+
+Listing:
+
+    1  COMPILER Language
+    2  
+    3  
+    4  CHARACTERS
+    5  
+    6  letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+    7  digit = "0123456789" .
+    8    tab      = CHR(9) .
+    9    lf       = CHR(10) .
+   10    eol      = CHR(13) .
+   11  
+   12  IGNORE
+   13    tab + eol + lf
+   14  
+   15  TOKENS
+   16  
+   17  ident = letter {letter | digit} .
+   18  
+   19  PRODUCTIONS
+   20  
+   21  Language =  prg name ";" bgn repeatStatement  list  end name "." .
+   22  prg   = "PROGRAM" .
+   23  name  = ident .
+   24  bgn   = "BEGIN" .
+   25  
+   26  list = { ident "," } | ident .
+   27  
+   28  
+   29  repeatStatement = repeat statementSeq until tailRepeatStatement  .
+   30  tailRepeatStatement = until condition | forever .
+   31  repeat = "REPEAT" .
+   32  statementSeq = {statement} .
+   33  statement = ifStatement | otherStatement .
+   34  ifStatement = if condition then statement ifTail .
+   35  ifTail = else statement endif | endif  .
+   36  otherStatement = "otherstatement" .
+   37  until  = "UNTIL" .
+   38  condition = "CONDITION" .
+   39  forever = "FOREVER" .
+   40  if = "IF" .
+   41  then = "THEN" .
+   42  else = "ELSE" .
+   43  endif = "ENDIF" .
+   44  end   = "END" .
+   45  
+   46  END Language.
+
+    0 errors
+
+
+Statistics:
+
+  nr of terminals:        18 (limit   256)
+  nr of non-terminals:    21 (limit   130)
+  nr of pragmas:           0 (limit   382)
+  nr of symbolnodes:      39 (limit   400)
+  nr of graphnodes:       56 (limit  1500)
+  nr of conditionsets:     1 (limit   100)
+  nr of charactersets:     6 (limit   250)
+
+

@@ -1,0 +1,15 @@
+Listing:
+
+    1  PROGRAM tst;
+    2  
+    3  using aaa.bbb aaa.ccc ;
+*****                ^ ";" expected
+    4  
+    5  BEGIN
+    6  
+    7  
+    8  END tst.
+
+    1 error
+
+

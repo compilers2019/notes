@@ -1,0 +1,52 @@
+
+
+
+    Scalar:   INT/INTEGER      .comm i, 4
+	                           .comm i, 8
+
+    Type myInt is range 23 .. 42 ;
+
+	var i: myInt;
+
+	enum
+	type colour = (red, green, blue);
+
+	var c: colour;
+	c := red; c := green; c := blue;
+	c := yellow; //not valid
+
+    CONST
+	   begin = 1; end = 2; for = 3; loop = 4; while = 5;
+
+    VAR s, s1, s2 : SET;
+    
+	s := {begin, for, while }
+    
+                   00101010
+
+
+    INCL  EXCL
+ 
+    s := s1 + s2;   s := s1 * s2;
+
+    TYPE 
+	
+	  human = RECORD
+	   name : string;
+	    age : INT;
+	    END;
+
+
+      alien = RECORD
+	   name : string;
+	    age : INT;
+		END;
+
+	VAR
+	  a : alien;
+	  h : human;
+
+	   h.name := "Valod"; h.age := 42;
+	   a.name := "Ford Prefect"; a.age := 31526503;
+
+	   h := a;
