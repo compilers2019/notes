@@ -1,0 +1,67 @@
+Coco/R - Compiler-Compiler V1.54 (for Pascal)
+Turbo Pascal version by Pohlers Volker/Terry Pat 2018.161
+Source file: test.atg
+
+Grammar Tests:
+
+Deletable symbols:        -- none --
+Undefined nonterminals:   -- none --
+Unreachable nonterminals: -- none --
+Circular derivations:     -- none --
+Underivable nonterminals: -- none --
+LL(1) conditions:         --  ok  --
+
+Listing:
+
+    1  COMPILER Lang
+    2  
+    3  
+    4  CHARACTERS
+    5  
+    6  letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+    7  digit = "0123456789" .
+    8  (* digit      = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" . *)
+    9    tab      = CHR(9) .
+   10    lf       = CHR(10) .
+   11    eol      = CHR(13) .
+   12  
+   13  IGNORE
+   14    tab + eol + lf
+   15  
+   16  TOKENS
+   17  
+   18  ident = letter {letter | digit} .
+   19  constant   = digit {digit} .
+   20  
+   21  
+   22  PRODUCTIONS
+   23  Lang = expression { expression } .
+   24  (*expression = term | expression [ "+"|"-"] term .
+   25  term       = factor | term "*"  factor .
+   26  factor     = constant | variable | "("  expression  ")" .
+   27  variable   = ident .
+   28  *)
+   29  expression  =  SimpleExpression [relation SimpleExpression]. 
+   30  SimpleExpression  =  term {AddOperator term}. 
+   31  term  =  factor {MulOperator factor}. 
+   32  factor  =  variable | "(" expression ")" | "~" factor. 
+   33  MulOperator  =  "*" | "/" | "DIV" | "MOD" | "&". 
+   34  AddOperator  =  "+" | "-" | "OR" . 
+   35  relation  =  "=" | "#" | "<" | "<=" | ">" | ">=" | "IN" | "IS" .
+   36  variable = ident .
+   37  END Lang.
+
+    0 errors
+
+
+Statistics:
+
+  nr of terminals:        23 (limit   256)
+  nr of non-terminals:     9 (limit   130)
+  nr of pragmas:           0 (limit   377)
+  nr of symbolnodes:      32 (limit   400)
+  nr of graphnodes:       59 (limit  1500)
+  nr of conditionsets:     2 (limit   100)
+  nr of charactersets:     6 (limit   250)
+
+
