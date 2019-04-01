@@ -1,0 +1,126 @@
+Coco/R - Compiler-Compiler V1.54 (for Pascal)
+Turbo Pascal version by Pohlers Volker/Terry Pat 2018.161
+Source file: o7.atg
+
+Listing:
+
+    1  COMPILER O7
+    2  (* A grammar for Oberon *)
+    3  
+    4  CHARACTERS
+    5    eol      = CHR(13) .
+    6    letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+    7    digit    = "0123456789" .
+    8    hexDigit = digit + "ABCDEF" .
+    9    noQuote  = ANY - '"' - eol  .
+   10  
+   11  IGNORE  CHR(9) .. CHR(13)
+   12  
+   13  COMMENTS
+   14    FROM "(*" TO "*)" NESTED
+   15  
+   16  
+   17  (*
+   18  EBNF of Oberon-07 (David Egan Evans, 20160727)
+   19  -=-=-
+   20  
+   21  Following is a rearrangement of the Oberon-07 EBNF. This reflects the official
+   22  EBNF of the Oberon Report (not the Appendix), including the Project Oberon 2013
+   23  change to CASE as a type guard for RECORD extension.
+   24  
+   25  
+   26  "character" refers to a member of type CHAR.
+   27  *)
+   28  TOKENS
+   29  ident = letter {letter | digit}.
+   30  number = integer (*| real*).
+*****           ^ undefined name
+   31  integer = digit {digit} | digit {hexDigit} "H".
+   32  (*real = digit {digit} "." {digit} [ScaleFactor].*)
+   33  ScaleFactor = "E" ["+" | "-"] digit {digit}.
+   34  (*string = '"' {character} '"' | digit {hexDigit} "X".*)
+   35   string  =  '"' { noQuote } '"' .
+   36  
+   37  PRODUCTIONS
+*****  ^ could not make deterministic automaton
+   38    Oberon           =  module .
+   39  
+   40  module = MODULE ident ";" [ImportList] DeclarationSequence
+   41      [BEGIN StatementSequence] END ident ".".
+*****                                ^ "|" expected
+   42  ImportList = IMPORT import {"," import} ";".
+   43  import = ident [":=" ident].
+   44  DeclarationSequence = [CONST {ConstDeclaration ";"}]
+   45      [TYPE {TypeDeclaration ";"}] [VAR {VariableDeclaration ";"}]
+   46      {ProcedureDeclaration ";"}.
+   47  ConstDeclaration = identdef "=" ConstExpression.
+   48  ConstExpression = expression.
+   49  TypeDeclaration = identdef "=" StrucType.
+   50  StrucType = ArrayType | RecordType | PointerType | ProcedureType.
+   51  ArrayType = ARRAY length {"," length} OF type.
+   52  length = ConstExpression.
+   53  RecordType = RECORD ["(" BaseType ")"] [FieldListSequence] END.
+*****                                                             ^ "|" expected
+   54  BaseType = qualident.
+   55  FieldListSequence = FieldList {";" FieldList}.
+   56  FieldList = IdentList ":" type.
+   57  IdentList = identdef {"," identdef}.
+   58  PointerType = POINTER TO type.
+*****                        ^ invalid Factor
+   59  ProcedureType = PROCEDURE [FormalParameters].
+   60  FormalParameters = "(" [FPSection {";" FPSection}] ")" [":" qualident].
+   61  FPSection = [VAR] ident {"," ident} ":" FormalType.
+   62  FormalType = {ARRAY OF} qualident.
+   63  qualident = [ident "."] ident.
+   64  identdef = ident ["*"].
+   65  VariableDeclaration = IdentList ":" type.
+   66  type = qualident | StrucType.
+   67  ProcedureDeclaration = ProcedureHeading ";" ProcedureBody ident.
+   68  ProcedureHeading = PROCEDURE identdef [FormalParameters].
+   69  ProcedureBody = DeclarationSequence [BEGIN StatementSequence]
+   70      [RETURN expression] END.
+*****                          ^ "|" expected
+   71  expression = SimpleExpression [relation SimpleExpression].
+   72  relation = "=" | "#" | "<" | "<=" | ">" | ">=" | IN | IS.
+   73  SimpleExpression = ["+" | "-"] term {AddOperator term}.
+   74  AddOperator = "+" | "-" | OR.
+   75  term = factor {MulOperator factor}.
+   76  MulOperator = "*" | "/" | DIV | MOD | "&".
+   77  factor = number | string | NIL | TRUE | FALSE |
+   78      set | designator [ActualParameters] | "(" expression ")" | "~" factor.
+   79  designator = qualident {selector}.
+   80  selector = "." ident | "[" ExpList "]" | "^" | "(" qualident ")".
+   81  set = "{" [element {"," element}] "}".
+   82  element = expression [".." expression].
+   83  ExpList = expression {"," expression}.
+   84  ActualParameters = "(" [ExpList] ")".
+   85  statement = [assignment | ProcedureCall | IfStatement | CaseStatement |
+   86      WhileStatement | RepeatStatement | ForStatement].
+   87  assignment = designator ":=" expression.
+   88  ProcedureCall = designator [ActualParameters].
+   89  StatementSequence = statement {";" statement}.
+   90  IfStatement = IF expression THEN StatementSequence
+   91      {ELSIF expression THEN StatementSequence}
+   92      [ELSE StatementSequence] END.
+*****                               ^ "|" expected
+   93  CaseStatement = CASE expression OF case {"|" case} END.
+*****                  ^ invalid Term
+*****                                                     ^ "|" expected
+   94  case = [CaseLabelList ":" StatementSequence].
+   95  CaseLabelList = LabelRange {"," LabelRange}.
+   96  LabelRange = label [".." label].
+   97  label = integer | string | qualident.
+   98  WhileStatement = WHILE expression DO StatementSequence
+   99      {ELSIF expression DO StatementSequence} END.
+*****                                              ^ "|" expected
+  100  RepeatStatement = REPEAT StatementSequence UNTIL expression.
+  101  ForStatement = FOR ident ":=" expression TO expression [BY ConstExpression]
+*****                                           ^ invalid Factor
+  102      DO StatementSequence END.
+*****                           ^ invalid Factor
+  103  END O7.
+*****      ^ missing production for grammar name
+
+   13 errors
+
+

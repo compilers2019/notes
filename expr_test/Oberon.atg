@@ -1,0 +1,111 @@
+COMPILER Oberon
+(* A grammar for Oberon *)
+
+CHARACTERS
+  eol      = CHR(10) .
+  letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+  digit    = "0123456789" .
+  hexDigit = digit + "ABCDEF" .
+  noQuote  = ANY - '"' - eol  .
+
+IGNORE  CHR(9) .. CHR(13)
+
+COMMENTS
+  FROM "(*" TO "*)" NESTED
+
+TOKENS
+  ident   =  letter { letter | digit } .
+  integer  =  digit { digit } | digit { hexDigit } "H" .
+  real  =  digit { digit } "." { digit }
+           [ ("E" | "D") [ "+" | "-" ] digit { digit } ] .
+  CharConstant = digit { hexDigit } "X" .
+  string  =  '"' { noQuote } '"' .
+
+PRODUCTIONS
+    Oberon           =  module ident semicolon
+                      [ ImportList ] DeclarationSequence
+                      [ begin StatementSequence ] end ident "." .
+  begin            = "BEGIN" .
+  end              = "END" .
+
+  module           = "MODULE" .
+  semicolon        = ";" .
+  number           =  integer | real .
+  identdef         =  ident [ "*" ] .
+  qualident        =  [ ident "." ] ident .
+
+  ConstantDeclaration  =  identdef "=" ConstExpression .
+  ConstExpression  =  expression .
+  TypeDeclaration  =  identdef "=" type .
+  type             =  qualident | RecordType | PointerType | ProcedureType .
+  RecordType       =  "RECORD" [ parOp BaseType parCl ] FieldListSequence "END" .
+  BaseType         =  qualident .
+  FieldListSequence  =  FieldList { ";" FieldList } .
+  FieldList        =  [ IdentList ":" type ] .
+  IdentList        =  identdef { "," identdef } .
+  PointerType      =  "POINTER" "TO" type .
+  ProcedureType    =  "PROCEDURE" [ FormalParameters ] .
+  VariableDeclaration  =  IdentList ":" type .
+  designator       =  qualident { "." ident | "[" ExpList "]" | parOp qualident parCl | "^"  } .
+  ExpList          =  expression { "," expression } .
+  expression       =  SimpleExpression [ relation SimpleExpression ] .
+  relation         =  "=" | "#" | "<" | "<=" | ">" | ">=" | "IN" | "IS" .
+  SimpleExpression =  [ plus | minus ] term { AddOperator term } .
+  AddOperator      =  plus | minus | or .
+  plus     = "+" .
+  minus    = "-" .
+  divide   = "/" .
+  mul      = "*" .
+  parOp    = "(" .
+  parCl    = ")" .
+  and      = "&" .
+
+  div      = "DIV" .
+  mod      = "MOD" .
+  nil      = "NIL" .
+  or       = "OR" .
+  assign   = ":=" .
+
+
+  term             =  factor { MulOperator factor } .
+  MulOperator      =  mul | divide | div | mod | and .
+  factor           =  number | CharConstant | string | nil | set
+                      | designator [ ActualParameters ]
+                      | parOp expression parCl | "~" factor .
+  set              =  "{" [ element { "," element } ] "}" .
+  element          =  expression [ ".." expression ] .
+  ActualParameters =  parOp [ ExpList ] parCl .
+  statement        =  [ assignment | (*ProcedureCall |*) IfStatement |
+                        CaseStatement | WhileStatement | RepeatStatement |
+                        LoopStatement | WithStatement | "EXIT" |
+                        "RETURN" [ expression ] ] .
+  assignment       =  designator assign expression .
+  (*ProcedureCall    =  designator [ ActualParameters ] .*)
+  StatementSequence =  statement { ";" statement } .
+  IfStatement      =  "IF" expression "THEN" StatementSequence
+                     { "ELSIF" expression "THEN" StatementSequence }
+                     [ "ELSE" StatementSequence ] "END" .
+  CaseStatement    =  "CASE" expression "OF" case { "|" case }
+                     [ "ELSE" StatementSequence ] "END" .
+  case             =  [ CaseLabelList ":" StatementSequence ] .
+  CaseLabelList    =  CaseLabels { "," CaseLabels } .
+  CaseLabels       =  ConstExpression [ ".." ConstExpression ] .
+  WhileStatement   =  "WHILE" expression "DO" StatementSequence "END" .
+  RepeatStatement  =  "REPEAT" StatementSequence "UNTIL" expression .
+  LoopStatement    =  "LOOP" StatementSequence "END" .
+  WithStatement    =  "WITH" qualident ":" qualident "DO" StatementSequence "END" .
+  ProcedureDeclaration  =  ProcedureHeading ";" ProcedureBody ident .
+  ProcedureHeading =  "PROCEDURE" [ "*" ] identdef [ FormalParameters ] .
+  ProcedureBody    =  DeclarationSequence [ "BEGIN" StatementSequence ] "END" .
+(*  ForwardDeclaration  =  "PROCEDURE" "^" ident [ "*" ] [ FormalParameters ] .*)
+  DeclarationSequence  =  {   "CONST" { ConstantDeclaration ";" }
+                            | "TYPE"  { TypeDeclaration ";" }
+                            | "VAR"   { VariableDeclaration ";" } }
+                          {   ProcedureDeclaration ";"
+                            (*| ForwardDeclaration*) ";" } .
+  FormalParameters =  parOp [ FPSection { ";" FPSection } ] parCl [ ":" qualident ] .
+  FPSection        =  [ "VAR" ] ident { "," ident } ":" FormalType .
+  FormalType       =  { "ARRAY" "OF" } (qualident | ProcedureType) .
+  ImportList       =  "IMPORT" import { "," import } ";" .
+  import           =  ident [ assign ident ] .
+END Oberon.

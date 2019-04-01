@@ -1,0 +1,149 @@
+Coco/R - Compiler-Compiler V1.54 (for Pascal)
+Turbo Pascal version by Pohlers Volker/Terry Pat 2018.161
+Source file: Oberon.atg
+
+Grammar Tests:
+
+Deletable symbols:
+     case
+     statement
+     FieldList
+     FieldListSequence
+     StatementSequence
+     DeclarationSequence
+Undefined nonterminals:   -- none --
+Unreachable nonterminals: -- none --
+Circular derivations:     -- none --
+Underivable nonterminals: -- none --
+LL(1) conditions:
+ LL(1) error in designator: "(" is the start & successor of a deletable structure
+ LL(1) error in qualident: ident is the start & successor of a deletable structure
+
+Listing:
+
+    1  COMPILER Oberon
+    2  (* A grammar for Oberon *)
+    3  
+    4  CHARACTERS
+    5    eol      = CHR(10) .
+    6    letter   = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz" .
+    7    digit    = "0123456789" .
+    8    hexDigit = digit + "ABCDEF" .
+    9    noQuote  = ANY - '"' - eol  .
+   10  
+   11  IGNORE  CHR(9) .. CHR(13)
+   12  
+   13  COMMENTS
+   14    FROM "(*" TO "*)" NESTED
+   15  
+   16  TOKENS
+   17    ident   =  letter { letter | digit } .
+   18    integer  =  digit { digit } | digit { hexDigit } "H" .
+   19    real  =  digit { digit } "." { digit }
+   20             [ ("E" | "D") [ "+" | "-" ] digit { digit } ] .
+   21    CharConstant = digit { hexDigit } "X" .
+   22    string  =  '"' { noQuote } '"' .
+   23  
+   24  PRODUCTIONS
+   25      Oberon           =  module ident semicolon
+   26                        [ ImportList ] DeclarationSequence
+   27                        [ begin StatementSequence ] end ident "." .
+   28    begin            = "BEGIN" .
+   29    end              = "END" .
+   30  
+   31    module           = "MODULE" .
+   32    semicolon        = ";" .
+   33    number           =  integer | real .
+   34    identdef         =  ident [ "*" ] .
+   35    qualident        =  [ ident "." ] ident .
+   36  
+   37    ConstantDeclaration  =  identdef "=" ConstExpression .
+   38    ConstExpression  =  expression .
+   39    TypeDeclaration  =  identdef "=" type .
+   40    type             =  qualident | RecordType | PointerType | ProcedureType .
+   41    RecordType       =  "RECORD" [ parOp BaseType parCl ] FieldListSequence "END" .
+   42    BaseType         =  qualident .
+   43    FieldListSequence  =  FieldList { ";" FieldList } .
+   44    FieldList        =  [ IdentList ":" type ] .
+   45    IdentList        =  identdef { "," identdef } .
+   46    PointerType      =  "POINTER" "TO" type .
+   47    ProcedureType    =  "PROCEDURE" [ FormalParameters ] .
+   48    VariableDeclaration  =  IdentList ":" type .
+   49    designator       =  qualident { "." ident | "[" ExpList "]" | parOp qualident parCl | "^"  } .
+   50    ExpList          =  expression { "," expression } .
+   51    expression       =  SimpleExpression [ relation SimpleExpression ] .
+   52    relation         =  "=" | "#" | "<" | "<=" | ">" | ">=" | "IN" | "IS" .
+   53    SimpleExpression =  [ plus | minus ] term { AddOperator term } .
+   54    AddOperator      =  plus | minus | or .
+   55    plus     = "+" .
+   56    minus    = "-" .
+   57    divide   = "/" .
+   58    mul      = "*" .
+   59    parOp    = "(" .
+   60    parCl    = ")" .
+   61    and      = "&" .
+   62  
+   63    div      = "DIV" .
+   64    mod      = "MOD" .
+   65    nil      = "NIL" .
+   66    or       = "OR" .
+   67    assign   = ":=" .
+   68  
+   69  
+   70    term             =  factor { MulOperator factor } .
+   71    MulOperator      =  mul | divide | div | mod | and .
+   72    factor           =  number | CharConstant | string | nil | set
+   73                        | designator [ ActualParameters ]
+   74                        | parOp expression parCl | "~" factor .
+   75    set              =  "{" [ element { "," element } ] "}" .
+   76    element          =  expression [ ".." expression ] .
+   77    ActualParameters =  parOp [ ExpList ] parCl .
+   78    statement        =  [ assignment | (*ProcedureCall |*) IfStatement |
+   79                          CaseStatement | WhileStatement | RepeatStatement |
+   80                          LoopStatement | WithStatement | "EXIT" |
+   81                          "RETURN" [ expression ] ] .
+   82    assignment       =  designator assign expression .
+   83    (*ProcedureCall    =  designator [ ActualParameters ] .*)
+   84    StatementSequence =  statement { ";" statement } .
+   85    IfStatement      =  "IF" expression "THEN" StatementSequence
+   86                       { "ELSIF" expression "THEN" StatementSequence }
+   87                       [ "ELSE" StatementSequence ] "END" .
+   88    CaseStatement    =  "CASE" expression "OF" case { "|" case }
+   89                       [ "ELSE" StatementSequence ] "END" .
+   90    case             =  [ CaseLabelList ":" StatementSequence ] .
+   91    CaseLabelList    =  CaseLabels { "," CaseLabels } .
+   92    CaseLabels       =  ConstExpression [ ".." ConstExpression ] .
+   93    WhileStatement   =  "WHILE" expression "DO" StatementSequence "END" .
+   94    RepeatStatement  =  "REPEAT" StatementSequence "UNTIL" expression .
+   95    LoopStatement    =  "LOOP" StatementSequence "END" .
+   96    WithStatement    =  "WITH" qualident ":" qualident "DO" StatementSequence "END" .
+   97    ProcedureDeclaration  =  ProcedureHeading ";" ProcedureBody ident .
+   98    ProcedureHeading =  "PROCEDURE" [ "*" ] identdef [ FormalParameters ] .
+   99    ProcedureBody    =  DeclarationSequence [ "BEGIN" StatementSequence ] "END" .
+  100  (*  ForwardDeclaration  =  "PROCEDURE" "^" ident [ "*" ] [ FormalParameters ] .*)
+  101    DeclarationSequence  =  {   "CONST" { ConstantDeclaration ";" }
+  102                              | "TYPE"  { TypeDeclaration ";" }
+  103                              | "VAR"   { VariableDeclaration ";" } }
+  104                            {   ProcedureDeclaration ";"
+  105                              (*| ForwardDeclaration*) ";" } .
+  106    FormalParameters =  parOp [ FPSection { ";" FPSection } ] parCl [ ":" qualident ] .
+  107    FPSection        =  [ "VAR" ] ident { "," ident } ":" FormalType .
+  108    FormalType       =  { "ARRAY" "OF" } (qualident | ProcedureType) .
+  109    ImportList       =  "IMPORT" import { "," import } ";" .
+  110    import           =  ident [ assign ident ] .
+  111  END Oberon.
+
+    0 errors
+
+
+Statistics:
+
+  nr of terminals:        65 (limit   256)
+  nr of non-terminals:    65 (limit   130)
+  nr of pragmas:           0 (limit   335)
+  nr of symbolnodes:     130 (limit   400)
+  nr of graphnodes:      342 (limit  1500)
+  nr of conditionsets:     4 (limit   100)
+  nr of charactersets:     9 (limit   250)
+
+
