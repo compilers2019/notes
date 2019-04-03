@@ -1,0 +1,307 @@
+
+locals
+======
+
+locals are like variables.
+they are denoted with a % symbol.
+they are local to the function, they are defined in.
+they cannot be modified/referenced outside of the function.
+
+alloca
+======
+
+will allocate memory in the stack frame.
+this memory is freed when the function is returned.
+the instruction returns a value, this is why we assign it to %a, etc.
+
+the value it returns is a pointer to the memory that is allocated.
+
+example:
+
+%a = alloca i32, align 4
+
+this instruction allocates space for a 32 bit signed integer on the stack.
+the pointer is stored in the local a.
+
+store
+=====
+
+the store instruction will change the value at the given pointer to contain the given value
+
+store i32 42, i32* %a, align 4
+
+here we tell llvm to store the value 32 of type i32 into the local a of the type i32* (a pointer to an i32). this instruction returns void, i. e. it returns nothing and cannot be assigned to a local.
+
+
+load
+====
+
+will return value at the given memory address
+
+%2 = load i32, i32* %a, align 4
+
+we load a value of type i32 from the memory address a (which is a pointer to i32). this value is stored in to the local 2.
+
+we have to load values because we can't just dereference.
+
+
+---
+add - addition
+
+ret - specifies value to return from the function.
+
+-----------------
+
+building go wrapper
+
+
+$ GOPATH="/home/noch/go"
+$ release=RELEASE_700
+$ svn co https://llvm.org/svn/llvm-project/llvm/tags/$release/final $GOPATH/src/llvm.org/llvm
+$ cd $GOPATH/src/llvm.org/llvm/bindings/go
+$ ./build.sh
+$ go install llvm.org/llvm/bindings/go/llvm
+
+
+importing llvm in the go program:
+
+```
+import "llvm.org/llvm/bindings/go/llvm"
+```
+
+
+
+
+
+llvm API
+========
+
+
+modules
+=======
+
+a module is a group of definitions and declarations.
+typically modules are created per-file, so in our C example that file was a module.
+
+module := llvm.NewModule("main")
+
+
+types
+=====
+
+bytes, integers, floating point, structures, arrays, function types.
+
+Int16Type, Int32Type ...
+
+foo := llvm.Int16Type()
+bar := llvm.Int32Type()
+
+specifying arbitrary bit-widths:
+
+fupa := llvm.IntType(32);
+
+
+ages := llvm.ArrayType(llvm.Int32Type(), 16)
+
+this is array of 16 32-bit integers.
+
+
+
+values
+======
+
+llvm values can be returned from instructions, though they can also be constants, functions, globals
+
+below we create a constant integer of type i32, with the value 42.
+the boolean parameter ata the end is whether to sign extend.
+
+foo := llvm.ConstInt(llvm.Int32Type(), 42, false)
+
+creating floating point constant:
+
+bar := llvm.ConstFloat(llvm.FloatType(), 32.5)
+
+we can assign these values to variables, or pass them to functions...
+
+a := llvm.ConstInt(llvm.Int32Type(), 12)
+b := llvm.ConstInt(llvm.Int32Type(), 24)
+c := llvm.ConstAdd(a, b)
+
+
+
+basic blocks
+============
+
+different from assembly.
+
+in assembly, we use labels for functions, and control flow.
+
+llvm is similar to this, though we have an explicit syntax for functions.
+
+to control flow of the program we use basic blocks.
+
+So the IR looks like this:
+
+
+define i32 @main()
+{
+
+entry:
+   ...
+
+0:
+   ...
+
+1:
+   ...
+
+}
+
+
+so we have three basic blocks: entry, 0, 1.
+you can have as many blocks as you want.
+
+they are used for things like jumping around, for instance looping, if statementes, etc
+
+with API we define a basik block as
+
+llvm.AddBasicBlock (context, "entry")
+
+
+where the context is the function that we want to add the block to.
+
+
+
+
+IR builder
+==========
+
+the IR builder will create our IR for us.
+we feed it values, instructions, and it'll join them together.
+
+
+builder := llvm.NewBuilder()
+//create a function "main"
+//create a block "entry"
+
+foo := builder.CreateAlloca(llvm.Int32Type(), "foo")
+builder.CreateStore(foo, llvm.ConstInt(llvm.Int32Type(), 12, false))
+
+this produces IR like:
+
+define i32 @main() {
+entry:
+    %foo = alloca i32
+    store i32 12, i32* %foo
+}
+
+
+
+
+
+functions
+=========
+
+
+functions are a type in llvm.
+
+we need to specify a few things when defining a function type:
+
+return type
+parameter types
+if the function is variadic, i. e. takes a variable amount of args.
+
+our main function:
+
+main := llvm.FunctionType(llvm.Int32Type(), []llvm.Type{}, false)
+llvm.AddFunction(mod, "main", main)
+
+
+the first parameter is the return type, so a 32 bit integer.
+
+our function takes no parameters, so we just pass an empty type array.
+
+and the function is not variadic, so we pass false in the for the last argument.
+
+
+
+the AddFunction adss the function to the given module as the given name.
+
+we can then reference it later (it's stored in a key/value map) like
+
+mainFunc := mod.NamedFunction("main")
+
+to lookup the function in the module.
+
+
+summurize
+=========
+
+
+
+```
+// setup our builder and module
+builder := llvm.NewBuilder()
+mod := llvm.NewModule("my_module")
+
+// create our function prologue
+main := llvm.FunctionType(llvm.Int32Type(), []llvm.Type{}, false)
+llvm.AddFunction(mod, "main", main)
+block := llvm.AddBasicBlock(mod.NamedFunction("main"), "entry")
+
+// note that we've set a function and need to tell
+// the builder where to insert things to
+builder.SetInsertPoint(block, block.FirstInstruction())
+
+// int a = 32
+a := builder.CreateAlloca(llvm.Int32Type(), "a")
+builder.CreateStore(llvm.ConstInt(llvm.Int32Type(), 32, false), a)
+
+// int b = 16
+b := builder.CreateAlloca(llvm.Int32Type(), "b")
+builder.CreateStore(llvm.ConstInt(llvm.Int32Type(), 16, false), b)
+
+```
+
+because ```alloca``` returns a pointer, we can't jast add a and b together.
+we have to generate some loads to "dereference" our pointer.
+
+```
+aVal := builder.CreateLoad(a, "a_val")
+bVal := builder.CreateLoad(b, "b_val")
+```
+
+and then the arithmetic part.
+we’ll be doing a + b, this is straight-forward as we just need to create an add instruction:
+
+```
+result := builder.CreateAdd(aVal, bVal, "ab_value")
+```
+
+Now we need to return this since our function returns an i32.
+
+```
+builder.CreateRet(result)
+```
+
+building
+========
+
+options:
+
+*    use llvm’s jit/execution engine
+*    translate into IR -> BitCode -> Assembly -> Object -> Executable
+
+
+check result
+============
+
+$ ./a.out
+$ echo $?
+$ 48
+
+
+
+
+------------------------------------
+https://news.ycombinator.com/item?id=11278551

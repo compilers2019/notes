@@ -1,0 +1,20 @@
+foo2(): integer;
+{ return 2 }
+
+foo3(): integer;
+{ return 3 }
+
+foo (i : integer): integer;
+{
+  return foo2() + foo3();
+
+}
+
+
+
+foo (expression | var)
+
+expression = foo()
+
+
+foo(foo1() + 5)
