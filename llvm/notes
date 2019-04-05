@@ -1,3 +1,5 @@
+http://norayr.am/files/2013-12-18/graph_dot.svg
+http://wiki.freepascal.org/LLVM
 
 locals
 ======
@@ -234,7 +236,7 @@ mainFunc := mod.NamedFunction("main")
 to lookup the function in the module.
 
 
-summurize
+summarize
 =========
 
 
@@ -305,3 +307,9 @@ $ 48
 
 ------------------------------------
 https://news.ycombinator.com/item?id=11278551
+http://www.cs.sfu.ca/~wsumner/teaching/LLVMIntro.pdf
+http://www.cs.toronto.edu/~pekhimenko/courses/cscd70-w18/docs/Tutorial%201%20-%20Intro%20to%20LLVM.pdf
+http://llvm.org/pubs/2008-10-04-ACAT-LLVM-Intro.pdf
+https://pauladamsmith.com/blog/2015/01/how-to-get-started-with-llvm-c-api.html
+http://llvm.org/doxygen/group__LLVMC.html
+

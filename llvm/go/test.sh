@@ -1,4 +1,4 @@
-release=RELEASE_700
+release=RELEASE_362
 export GOPATH="/home/noch/go"
 
 svn co https://llvm.org/svn/llvm-project/llvm/tags/$release/final $GOPATH/src/llvm.org/llvm
