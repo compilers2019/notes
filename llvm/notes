@@ -32,7 +32,7 @@ the store instruction will change the value at the given pointer to contain the 
 
 store i32 42, i32* %a, align 4
 
-here we tell llvm to store the value 32 of type i32 into the local a of the type i32* (a pointer to an i32). this instruction returns void, i. e. it returns nothing and cannot be assigned to a local.
+here we tell llvm to store the value 42 of type i32 into the local a of the type i32* (a pointer to an i32). this instruction returns void, i. e. it returns nothing and cannot be assigned to a local.
 
 
 load
