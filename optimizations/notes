@@ -1,0 +1,157 @@
+you may want to not use stdlib because you develop for embedded systems.
+
+(no rtti, no exceptions are requirements)
+thus you don't use the stdlib.
+
+strings
+=======
+
+std::string in 98
+
+class string
+{
+
+  char* data;      // the string
+  size_t size;     //Length
+  size_t capacity; //LEN
+
+
+}
+
+
+then there'll be constructors
+
+public:
+   string(const string& s) //copy constructor
+      : data(s.clone()) // new + memmove (may be malloc, memcpy)
+      {}
+    // ... //takes array of char
+    string(const char* s); //new + memmove
+
+both constructors will take dynamic memory and move symbols there
+
+
+--------
+
+std::map<string, int> m;
+
+m.insert(
+   std::pair<string, int> ("Hello!", 1)
+   );
+
+   this works slowly because
+   * first constructor of string is called (new, memmove)
+   * then the constructor of the pair, which will initiate copy constructor of stringa(new, memmove again)
+   * then the string will be copied to the pair. (new, memmove)
+   * then the temporary object for pair and string will be freed.
+   // (new + memmove) * 2 + delete
+   // new + memmove + delete
+
+
+COW
+
+  most waste of time because of temporary objects.
+  it may be that several pointers point to one object of string.
+  then it should have reference count.
+
+
+  class string_impl
+  {
+    char* data;
+    size_t size;
+    size_t capacity;
+    size_t use_count;
+  }
+
+
+  copy constructor
+
+  class string
+  {
+    string_impl* impl;
+  public:
+    string(const string& s)
+      : impl(s.impl)
+      {
+        ++ impl->use_count;
+      }
+
+   };
+
+
+   when you have a function, which modifies the string, then
+   you check if you are the only one who owns the string
+   if yes, you modify it
+   otherwise you copy it and then only modify.
+
+
+   class string
+   {
+      string_impl* impl;
+      public:
+      char& operator[](size_t)
+      {
+        if (impl->use_count > 1)
+           *this = clone();
+      }
+      return impl->data[i];
+
+   }
+
+
+   destructor decreases reference count
+   if you are the only owner of the dynamic memory it may be freed.
+
+   class string
+   {
+      string_impl* impl;
+    public:
+      ~string()
+        {
+         -- impl->use_count;
+         if (!impl->use_count
+         {
+            delete impl;
+         }
+        }
+
+   }
+
+
+   now again, what if we do m.insert
+
+   std::map<string, int> m;
+
+   m.insert(
+      std::pair<string, int>("Hello, 1)
+       );
+
+   * constructor from the character array - same shit (new, memmove)
+   * then copy constructor will be called when creating a pair.
+   it has no new or memmove.
+   * when pair will be inserted into the map, then again copy constructor of the string is called, which does not call new or memmove.
+   therefore no destructor of temporary object will call delete.
+
+   COW is more than twice as fast as c++98 string.
+
+  Qt uses COW almost in every base class.
+  Pascal uses COW.
+
+  ---------
+
+  then
+
+  * hyper-threading in pentium 4 arrives
+  * two core amd64  arrives
+  * then two core x86_64 arrives
+
+ now our reference counter has problems
+ because it is shared
+ in case we have two objects on different cores
+
+ assume two string objects will try to decrease reference count simultaneously.
+ whether we get a memory leak or a program crash.
+
+ now, how to fix this.
+
+
