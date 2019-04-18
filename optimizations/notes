@@ -19,6 +19,39 @@ class string
 }
 
 
+------------------------------
+
+what is copy constructor?
+
+copy constructors instantiate new instances by copying existing ones:
+
+
+class example
+{
+ public:
+    example();      // default constructor
+    example(const example&) //copy constructor
+    {
+        // this is the copy constructor
+    }
+}
+
+
+how to call
+
+int main(void)
+{
+    example x1; //normal ctor
+    example x2 = x1; // copy ctor, creating new object from an existing obj
+    example x3(x2); // copy ctor, same
+
+    foo(x1); // calls the copy ctor to copy the argument for foo
+
+}
+
+also when passing class object by value, or when returning object by value.
+
+
 then there'll be constructors
 
 public:
@@ -153,5 +186,60 @@ COW
  whether we get a memory leak or a program crash.
 
  now, how to fix this.
+
+COW MT fix
+
+class string_impl
+{
+
+  char* data;
+  size_t size;
+  size_t capacity;
+  atomic<size_t> use_count; // the fix
+}
+
+
+back then there was no atomic.h which implements atomic operations.
+
+
+now constructor also has atomic structure
+
+class string
+{
+  string_impl* impl;
+public:
+  string(const string& s) //constructor
+    : impl(s.impl)
+    {
+       ++ impl-> use_count; //atomic
+    }
+  char& operator[](size_t i)
+  {
+    if impl->use_count > 1) //atomic
+    {
+       string cloned = clone(); //new + memmove + atomic
+       swap (*this, cloned);
+       //atomic in  ~string for cloned; delete in ~string if other thread released the string 
+    }
+
+  }
+}
+
+
+MT troubles:
+ imagine one thread copies the string.
+ other thread decides to delete the string, while other still copying it.
+
+
+ why atomic operations are slowly
+
+ on x86 non atomic INC - 1 tick.
+
+ atomic INC ~5-20+ ticks, if the core 'owns' the atomic.
+ if other core 'owns' then around 40 ticks.
+
+ https://blog.erratasec.com/2013/02/multi-core-scaling-its-not-multi.html
+ http://www.agner.org/optimize/instruction_tables.pdf
+ https://htor.inf.ethz.ch/publications/img/atomic-bench.pdf
 
 
