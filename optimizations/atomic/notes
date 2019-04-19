@@ -1,0 +1,225 @@
+https://stackoverflow.com/questions/37786547/enforcing-statement-order-in-c
+
+
+before c++-11 c++ programmers had no standardized ways to work with threads, they were limited to Qt and using non portable system calls.
+
+since c++-11 we have parallel programing in stdlib.
+
+<thread>
+<mutex>
+<conditional_variable>
+<future>
+<atomic>
+
+who to blame?
+programmer?
+compiler?
+
+though the routines to deal with multithreaded programming
+are in stdlib now
+
+multithreading is not reflected in the standard.
+compiler believes that it generates code for single process on an abstract machine. thus it can apply optimizations, that should not affect work on one cpu.
+
+
+In software engineering, the singleton pattern is a software design pattern that restricts the instantiation of a class to one "single" instance. This is useful when exactly one object is needed to coordinate actions across the system. The term comes from the mathematical concept of a singleton.
+
+Եզակի օգտագործման նախագծման ձևանմուշը ստեղծող ձևանմուշ է, որը միահոսքային ծրագրերում գլոբալ հասանելիության տեսանկյունից հանդիսանում է դասի եզակի նմուշը։ Ձևանմուշի օգտագործումը օգտակար է կիրառել, երբ ողջ համակարգի մեջ միայն մի օբյեկտ պետք է կոորդինացնել։
+
+Singleton* Singleton::Get()
+{
+
+ if (instance == nullptr)
+ {
+   std::lock_guard<std::mutex> guard(lock);
+   if (instance == nullptr
+   {
+     instance = new Singleton();
+   }
+
+
+ }
+ return instance;
+}
+
+mutex is an expensive operation.
+
+this code may not work in threaded environment.
+
+https://stackoverflow.com/questions/37786547/enforcing-statement-order-in-c
+
+
+
+-----------------------------
+
+int data;
+volatile bool ready = false;
+
+void foo()
+{                 // CPU 0
+  ready = true;
+   data = 42;
+}
+
+void bar()
+{
+  if (ready)
+  {
+    assert(data == 42);
+  }
+}
+
+
+----------------------
+
+
+above the problem is, cpu may reorder assignments in the first function.
+
+
+int data;
+
+volatile bool ready = false;
+
+void foo()          //CPU 0
+{
+  data = 42;
+  ready = true;
+}
+
+void bar()          //CPU 1
+{
+  int tmp = data;
+  if (ready)
+  {
+    assert(tmp == 42);
+  }
+}
+
+--------------------------------
+
+or it may reorder condition and assignment.
+
+
+int data;
+
+volatile bool ready = false;
+
+void foo()          //CPU 0
+{
+  data = 42;
+  -------------------------------
+  ready = true;
+}
+
+void bar()          //CPU 1
+{
+  int tmp = data;
+  if (ready)
+  {
+  ------------------------------
+    assert(tmp == 42);
+  }
+}
+
+we would like to tell it somehow that something before the line should be conducted before something after the line.
+
+most of operations in cpu are store/load.
+
+memory barriers
+=============
+
+XX_YY guaranties that all XX operations before the fence will be conducted before YY operations after the fence.
+
+volatile bool ready = false;
+
+void foo()          //CPU 0
+{
+  data = 42;
+  STORE_STORE
+  ready = true;
+}
+
+void bar()          //CPU 1
+{
+  int tmp = data;
+  if (ready)
+  {
+    LOAD_LOAD
+    assert(tmp == 42);
+  }
+}
+
+because operations with memory are only two types, then the we can do
+
+LOAD_LOAD LOAD_STORE
+STORE_LOAD STORE_STORE
+
+
+LOAD_LOAD LOAD_STORE ---- Acquire
+
+Acquire guaranties that all operations after the fence will be conducted after all Load operations before.
+
+movl $1, x        //write
+movl y, %eax      //read
+acquire_fence
+movl w, %ebx      //read
+movl e, %ecx      //read
+movl $3, q        //write
+
+
+still this can be transformed by cpu to
+
+movl y, %eax      //read
+acquire_fence
+movl $1, x        //write
+movl w, %ebx      //read
+movl e, %ecx      //read
+movl $3, q        //write
+
+
+
+
+LOAD_STORE
+STORE_STORE  - Release
+
+Release barrier guaranties that all operations before the fence will be conducted before Store operations after the fence.
+
+movl $1, x    //write
+movl y, %eax  //read
+movl $2, z    //write
+release_fence
+movl $3, w    //write
+movl k, %ebx  //read
+
+however this still possible
+
+movl $1, x    //write
+movl y, %eax  //read
+movl $2, z    //write
+movl k, %ebx  //read
+release_fence
+movl $3, w    //write
+
+Acquire means that no memory accesses which appear after the acquire fence can be reordered to before the fence.
+
+Release means that no memory accesses which appear before the release fence can be reordered to after the fence.
+
+https://stackoverflow.com/questions/36824811/memory-fences-acquire-load-and-release-store
+
+-----------
+void function_with_lock()
+{
+  ...
+  if (can_enter)
+  {
+  acquire_fence(); //LoadLoad LoadStore
+
+  //all instructions stay between these fences
+
+  release_fence();  //LoadStore StoreStore
+  can_enter = true;
+  }
+  ...
+}
+
+the remaining StoreLoad means synchronization of all caches.
